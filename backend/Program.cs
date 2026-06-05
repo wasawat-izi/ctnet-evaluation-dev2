@@ -7,6 +7,8 @@ using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using backend.Services;
 
 var envPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "..", ".env"));
 
@@ -21,14 +23,46 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
+});
+
 builder.Services.AddControllers();
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var server = Environment.GetEnvironmentVariable("DB_SERVER") ?? "localhost";
 var database = Environment.GetEnvironmentVariable("DB_NAME") ?? "database";
 var uid = Environment.GetEnvironmentVariable("DB_UID") ?? "root";
 var pwd = Environment.GetEnvironmentVariable("DB_PWD") ?? "1234";
 var port = Environment.GetEnvironmentVariable("DB_PORT") ?? "3306";
+
 var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "http://localhost:5246";
 var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "http://localhost:5246";
 var signingKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? "password";
