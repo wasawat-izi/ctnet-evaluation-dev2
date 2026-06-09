@@ -142,6 +142,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
