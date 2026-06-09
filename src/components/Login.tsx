@@ -6,7 +6,6 @@ import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
-// 1. Define real-world validation rules
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email format"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -26,14 +25,9 @@ export default function Login() {
     setServerError(null);
     try {
       const response = await api.post('/accounts/login', data);
-      
-      // Store JWT
       localStorage.setItem('jwt_token', response.data.token);
-      
-      // Redirect to welcome/dashboard
       navigate('/dashboard');
     } catch (error: any) {
-      // 2. Handle the specific 5-failed-attempts lockout scenario
       if (error.response?.status === 429 || error.response?.status === 403) {
          setServerError("Account locked for 5 minutes due to too many failed attempts.");
       } else {
@@ -43,27 +37,31 @@ export default function Login() {
   };
 
   return (
-    <div className="login-container">
-      <h2>Welcome Back</h2>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label>Email</label>
-          <input type="email" {...register('email')} />
-          {errors.email && <span className="error">{errors.email.message}</span>}
-        </div>
+    <div className="min-h-screen flex-center">
+      <div className="login-card">
+        <h2>Welcome back</h2>
+        <p>Please enter your details to sign in.</p>
 
-        <div>
-          <label>Password</label>
-          <input type="password" {...register('password')} />
-          {errors.password && <span className="error">{errors.password.message}</span>}
-        </div>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="Enter your email" {...register('email')} />
+            {errors.email && <span className="error">{errors.email.message}</span>}
+          </div>
 
-        {serverError && <div className="server-error" style={{ color: 'red' }}>{serverError}</div>}
+          <div className="form-group" style={{ marginBottom: '2rem' }}>
+            <label>Password</label>
+            <input type="password" placeholder="••••••••" {...register('password')} />
+            {errors.password && <span className="error">{errors.password.message}</span>}
+          </div>
 
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
+          {serverError && <div className="error" style={{ marginBottom: '1rem', textAlign: 'center' }}>{serverError}</div>}
+
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Signing in...' : 'Sign in'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
