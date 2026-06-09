@@ -6,8 +6,7 @@ import api from '../api/axios';
 interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  userName: string;
 }
 
 export default function Dashboard() {
@@ -19,11 +18,11 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         // Fetch current logged-in user info
-        const meRes = await api.get('/users/me');
+        const meRes = await api.get('/accounts/me');
         setCurrentUser(meRes.data);
 
         // Fetch all registered users
-        const usersRes = await api.get('/users');
+        const usersRes = await api.get('/accounts');
         setAllUsers(usersRes.data);
       } catch (error) {
         // If unauthorized, token might be expired
@@ -45,7 +44,7 @@ export default function Dashboard() {
   return (
     <div>
       <header>
-        <h1>Welcome, {currentUser.firstName}!</h1>
+        <h1>Welcome, {currentUser.userName}!</h1>
         <button onClick={handleLogout}>Logout</button>
       </header>
 
@@ -69,7 +68,7 @@ export default function Dashboard() {
             {allUsers.map(user => (
               <tr key={user.id}>
                 <td>{user.id}</td>
-                <td>{user.firstName} {user.lastName}</td>
+                <td>{user.userName}</td>
                 <td>{user.email}</td>
               </tr>
             ))}

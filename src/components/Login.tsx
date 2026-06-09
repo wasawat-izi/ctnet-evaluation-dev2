@@ -25,7 +25,7 @@ export default function Login() {
   const onSubmit = async (data: LoginFormInputs) => {
     setServerError(null);
     try {
-      const response = await api.post('/auth/login', data);
+      const response = await api.post('/accounts/login', data);
       
       // Store JWT
       localStorage.setItem('jwt_token', response.data.token);

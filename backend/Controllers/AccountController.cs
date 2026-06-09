@@ -12,6 +12,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Asn1.Ess;
 using Superpower.Model;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
@@ -99,6 +101,53 @@ namespace backend.Controllers
                         Token = _tokenService.CreateToken(user)
                     }
                 );
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpGet("me")]
+        [Authorize] // This ensures only logged-in users with a valid JWT can access it
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            try
+            {
+                // Extract the email or username from the JWT claims
+                var email = User.FindFirstValue(ClaimTypes.Email);
+                
+                if (email == null) return Unauthorized();
+
+                var user = await _userManager.FindByEmailAsync(email);
+                
+                if (user == null) return NotFound("User not found");
+
+                return Ok(new 
+                {
+                    Username = user.UserName,
+                    Email = user.Email
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpGet]
+        [Authorize] 
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {
+                var users = await _userManager.Users.ToListAsync();
+                var userList = users.Select(u => new 
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email
+                });
+
+                return Ok(userList);
             }
             catch (Exception e)
             {
