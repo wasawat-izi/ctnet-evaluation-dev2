@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Dtos.Accounts;
@@ -8,10 +7,9 @@ using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.CodeAnalysis;
+using System.Security.Claims;     
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Asn1.Ess;
-using Superpower.Model;
 
 namespace backend.Controllers
 {
@@ -19,86 +17,83 @@ namespace backend.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        private readonly IAuthService _authService;
         private readonly UserManager<AppUser> _userManager;
-        private readonly ITokenService _tokenService;
-        private readonly SignInManager<AppUser> _signInManager;
-        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager)
+
+        public AccountController(IAuthService authService, UserManager<AppUser> userManager)
         {
-            _userManager = userManager;
-            _tokenService = tokenService;
-            _signInManager = signInManager;
+            _authService = authService;
+            _userManager = userManager; 
         }
 
         [HttpPost("register")]
-
         public async Task<IActionResult> Register([FromBody] RegisterAccountDto registerAccountDto)
         {
-            try
-            {
-                if(!ModelState.IsValid)
-                    return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                var appUser = new AppUser
-                {
-                    UserName = registerAccountDto.Username,
-                    Email = registerAccountDto.Email,
-                };
+            var result = await _authService.RegisterUserAsync(registerAccountDto);
 
-                var createdUser = await _userManager.CreateAsync(appUser, registerAccountDto.Password);
+            if (!result.Success)
+                return StatusCode(500, result.Errors);
 
-                if (createdUser.Succeeded)
-                {
-                    var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
-                    if (roleResult.Succeeded)
-                    {
-                        return Ok(new NewAccountDto
-                        {
-                            Username = appUser.UserName,
-                            Email = appUser.Email,
-                            Token = _tokenService.CreateToken(appUser)
-                        });
-                    }
-                    else
-                    {
-                        return StatusCode(500, roleResult.Errors);
-                    }
-                }
-                else
-                    return StatusCode(500, createdUser.Errors); 
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message); 
-            }
+            return Ok(result.Data);
         }
 
         [HttpPost("login")]
         [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Login([FromBody] LoginAccountDto loginAccountDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _authService.LoginUserAsync(loginAccountDto);
+
+            if (!result.Success)
+                return Unauthorized(result.Errors.FirstOrDefault());
+
+            return Ok(result.Data);
+        }
+
+        [HttpGet("me")]
+        [Authorize] 
+        public async Task<IActionResult> GetCurrentUser()
+        {
             try
             {
-                if(!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                var email = User.FindFirstValue(ClaimTypes.Email);
+                if (email == null) return Unauthorized();
 
-                var user = await _userManager.FindByEmailAsync(loginAccountDto.Email);
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null) return NotFound("User not found");
 
-                if(user == null)
-                    return Unauthorized("Email not found and/or incorrect password");
+                return Ok(new 
+                {
+                    Username = user.UserName,
+                    Email = user.Email
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
 
-                var result = await _signInManager.CheckPasswordSignInAsync(user, loginAccountDto.Password, false);
+        [HttpGet]
+        [Authorize] 
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {
+                var users = await _userManager.Users.ToListAsync();
+                var userList = users.Select(u => new 
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email
+                });
 
-                if(!result.Succeeded)
-                    return Unauthorized("Email not found and/or incorrect password");
-
-                return Ok(
-                    new NewAccountDto
-                    {
-                        Username = user.UserName,
-                        Email = user.Email,
-                        Token = _tokenService.CreateToken(user)
-                    }
-                );
+                return Ok(userList);
             }
             catch (Exception e)
             {

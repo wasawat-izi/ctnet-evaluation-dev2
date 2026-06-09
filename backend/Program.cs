@@ -131,6 +131,19 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseMySQL(connectionString);
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowViteApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") 
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -140,6 +153,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowViteApp");
 
 app.UseRateLimiter();
 

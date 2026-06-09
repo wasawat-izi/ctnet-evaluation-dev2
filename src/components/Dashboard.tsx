@@ -6,8 +6,7 @@ import api from '../api/axios';
 interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  userName: string;
 }
 
 export default function Dashboard() {
@@ -18,15 +17,12 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Fetch current logged-in user info
-        const meRes = await api.get('/users/me');
+        const meRes = await api.get('/accounts/me');
         setCurrentUser(meRes.data);
 
-        // Fetch all registered users
-        const usersRes = await api.get('/users');
+        const usersRes = await api.get('/accounts');
         setAllUsers(usersRes.data);
       } catch (error) {
-        // If unauthorized, token might be expired
         localStorage.removeItem('jwt_token');
         navigate('/login');
       }
@@ -40,36 +36,39 @@ export default function Dashboard() {
     navigate('/login');
   };
 
-  if (!currentUser) return <div>Loading...</div>;
+  if (!currentUser) return <div className="min-h-screen flex-center"><p>Loading...</p></div>;
 
   return (
-    <div>
-      <header>
-        <h1>Welcome, {currentUser.firstName}!</h1>
-        <button onClick={handleLogout}>Logout</button>
+    <div className="container">
+      <header className="dashboard-header">
+        <div>
+          <h1>Overview</h1>
+          <p>Welcome back, {currentUser.userName}</p>
+        </div>
+        <button className="btn-outline" onClick={handleLogout}>Log out</button>
       </header>
 
-      <section>
-        <h2>Your Profile</h2>
-        <p>Email: {currentUser.email}</p>
-        <p>ID: {currentUser.id}</p>
+      <section className="card">
+        <h2>Profile Details</h2>
+        <p style={{ marginTop: '0.5rem' }}><strong>Email:</strong> {currentUser.email}</p>
+        <p><strong>Account ID:</strong> {currentUser.id}</p>
       </section>
 
-      <section>
-        <h2>All Registered Users</h2>
+      <section className="card">
+        <h2 style={{ marginBottom: '1.5rem' }}>System Users</h2>
         <table>
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
+              <th>Username</th>
               <th>Email</th>
             </tr>
           </thead>
           <tbody>
             {allUsers.map(user => (
               <tr key={user.id}>
-                <td>{user.id}</td>
-                <td>{user.firstName} {user.lastName}</td>
+                <td><span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{user.id}</span></td>
+                <td style={{ fontWeight: 500 }}>{user.userName}</td>
                 <td>{user.email}</td>
               </tr>
             ))}

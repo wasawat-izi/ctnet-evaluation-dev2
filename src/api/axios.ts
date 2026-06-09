@@ -1,8 +1,7 @@
-// src/api/axios.ts
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // Adjust to match your .NET backend port
+  baseURL: 'http://localhost:5079/api',
 });
 
 api.interceptors.request.use((config) => {
