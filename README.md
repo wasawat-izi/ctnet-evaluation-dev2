@@ -40,8 +40,6 @@ npm run dev
 ```sh
 npm run build
 ```
-<<<<<<< HEAD
-=======
 
 ### Run Unit Tests with [Vitest](https://vitest.dev/)
 
@@ -67,4 +65,3 @@ npm run test:e2e -- tests/example.spec.ts
 # Runs the tests in debug mode
 npm run test:e2e -- --debug
 ```
->>>>>>> 4b03c1dc73a390cd2e77b9fd5787a7aa37261f20
