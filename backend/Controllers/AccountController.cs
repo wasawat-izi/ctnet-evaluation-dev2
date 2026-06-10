@@ -41,7 +41,6 @@ namespace backend.Controllers
         }
 
         [HttpPost("login")]
-        // [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Login([FromBody] LoginAccountDto loginAccountDto)
         {
             if (!ModelState.IsValid)

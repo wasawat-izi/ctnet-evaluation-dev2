@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using backend.Services;
 using System.Threading.RateLimiting;
+using Org.BouncyCastle.Asn1.Cms;
 
 var envPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "..", ".env"));
 
@@ -52,31 +53,6 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
-builder.Services.AddRateLimiter(options =>
-{
-    options.AddPolicy("LoginPolicy", context =>
-    {
-       var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-       return RateLimitPartition.GetFixedWindowLimiter(ipAddress, _ => new FixedWindowRateLimiterOptions
-       {
-            PermitLimit = 5,
-            Window = TimeSpan.FromMinutes(5),
-            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-            QueueLimit = 0 
-       });
-    });
-
-    options.OnRejected = async (context, token) =>
-    {
-        context.HttpContext.Response.StatusCode = 429;
-        await context.HttpContext.Response.WriteAsJsonAsync(new
-        {
-            error = "Too many login attempts. Try again later.",
-            retryAfter = "5 minutes"
-        });
-    };
-});
-
 builder.Services.AddControllers();
 builder.Configuration.AddEnvironmentVariables();
 
@@ -102,6 +78,10 @@ builder.Services.AddIdentity<AppUser, IdentityRole>( options =>
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
+
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
 }).AddEntityFrameworkStores<ApplicationDBContext>();
 
 builder.Services.AddAuthentication(options =>{
@@ -155,8 +135,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowViteApp");
-
-app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
