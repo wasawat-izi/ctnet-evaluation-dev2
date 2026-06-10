@@ -1,12 +1,12 @@
 using System.Threading.Tasks;
 using backend.Dtos.Accounts;
-using backend.Models;
+using backend.Dtos.Auth;
 
 namespace backend.Interfaces
 {
     public interface IAuthService
     {
-        Task<AuthResult> RegisterUserAsync(RegisterAccountDto dto);
-        Task<AuthResult> LoginUserAsync(LoginAccountDto dto);
+        Task<AuthResultDto> RegisterUserAsync(RegisterAccountDto dto);
+        Task<AuthResultDto> LoginUserAsync(LoginAccountDto dto);
     }
 }

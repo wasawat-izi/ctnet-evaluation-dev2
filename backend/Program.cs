@@ -78,6 +78,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole>( options =>
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
+    
+    options.User.RequireUniqueEmail = true;
 
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     options.Lockout.MaxFailedAccessAttempts = 5;

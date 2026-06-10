@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Dtos.Accounts;
+using backend.Dtos.Auth;
 using backend.Interfaces;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
@@ -21,7 +22,7 @@ namespace backend.Services
             _tokenService = tokenService;
         }
 
-        public async Task<AuthResult> RegisterUserAsync(RegisterAccountDto dto)
+        public async Task<AuthResultDto> RegisterUserAsync(RegisterAccountDto dto)
         {
             try
             {
@@ -37,7 +38,7 @@ namespace backend.Services
 
                 if (!createdUser.Succeeded)
                 {
-                    return new AuthResult 
+                    return new AuthResultDto 
                     { 
                         Success = false, 
                         Errors = createdUser.Errors.Select(e => e.Description) 
@@ -48,14 +49,14 @@ namespace backend.Services
                 
                 if (!roleResult.Succeeded)
                 {
-                    return new AuthResult 
+                    return new AuthResultDto 
                     { 
                         Success = false, 
                         Errors = roleResult.Errors.Select(e => e.Description) 
                     };
                 }
 
-                return new AuthResult
+                return new AuthResultDto
                 {
                     Success = true,
                     Data = new NewAccountDto
@@ -68,11 +69,11 @@ namespace backend.Services
             }
             catch (Exception e)
             {
-                return new AuthResult { Success = false, Errors = new[] { e.Message } };
+                return new AuthResultDto { Success = false, Errors = new[] { e.Message } };
             }
         }
 
-        public async Task<AuthResult> LoginUserAsync(LoginAccountDto dto)
+        public async Task<AuthResultDto> LoginUserAsync(LoginAccountDto dto)
         {
             try
             {
@@ -80,14 +81,14 @@ namespace backend.Services
 
                 if (user == null)
                 {
-                    return new AuthResult { Success = false, Errors = new[] { "Email not found and/or incorrect password" } };
+                    return new AuthResultDto { Success = false, Errors = new[] { "Email not found and/or incorrect password" } };
                 }
 
                 var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: true);
 
                 if (result.IsLockedOut)
                 {
-                    return new AuthResult 
+                    return new AuthResultDto 
                     { 
                         Success = false, 
                         Errors = new[] { "Account is locked due to multiple failed login attempts. Please try again in 5 minutes." } 
@@ -96,10 +97,10 @@ namespace backend.Services
 
                 if (!result.Succeeded)
                 {
-                    return new AuthResult { Success = false, Errors = new[] { "Email not found and/or incorrect password" } };
+                    return new AuthResultDto { Success = false, Errors = new[] { "Email not found and/or incorrect password" } };
                 }
 
-                return new AuthResult
+                return new AuthResultDto
                 {
                     Success = true,
                     Data = new NewAccountDto
@@ -112,7 +113,7 @@ namespace backend.Services
             }
             catch (Exception e)
             {
-                return new AuthResult { Success = false, Errors = new[] { e.Message } };
+                return new AuthResultDto { Success = false, Errors = new[] { e.Message } };
             }
         }
     }
