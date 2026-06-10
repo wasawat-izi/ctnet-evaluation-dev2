@@ -83,7 +83,16 @@ namespace backend.Services
                     return new AuthResult { Success = false, Errors = new[] { "Email not found and/or incorrect password" } };
                 }
 
-                var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
+                var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: true);
+
+                if (result.IsLockedOut)
+                {
+                    return new AuthResult 
+                    { 
+                        Success = false, 
+                        Errors = new[] { "Account is locked due to multiple failed login attempts. Please try again in 5 minutes." } 
+                    };
+                }
 
                 if (!result.Succeeded)
                 {
