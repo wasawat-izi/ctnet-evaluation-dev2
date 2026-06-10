@@ -18,6 +18,7 @@ namespace backend.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<AppUser>().HasIndex(u => u.Email).IsUnique();
             base.OnModelCreating(builder);
             List<IdentityRole> roles = new List<IdentityRole>
             {

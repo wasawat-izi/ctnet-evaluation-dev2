@@ -32,6 +32,10 @@ namespace backend.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            var existingUser = await _userManager.FindByEmailAsync(registerAccountDto.Email);
+            if(existingUser != null)
+                return BadRequest(new[] {"Email already existed!"});
+
             var result = await _authService.RegisterUserAsync(registerAccountDto);
 
             if (!result.Success)
