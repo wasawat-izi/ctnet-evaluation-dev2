@@ -27,6 +27,8 @@ namespace backend.Services
             {
                 var appUser = new AppUser
                 {
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
                     UserName = dto.Username,
                     Email = dto.Email,
                 };
