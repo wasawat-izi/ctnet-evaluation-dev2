@@ -45,3 +45,14 @@ The backend relies on environment variables for database connections and JWT sig
    JWT_KEY=your_super_secret_jwt_key_here
    JWT_ISSUER=http://localhost:5079
    JWT_AUDIENCE=http://localhost:5173
+
+## 2. Backend Setup (.NET)
+
+Open a terminal and navigate to the backend directory:
+`cd backend`
+Restore dependencies:
+`dotnet restore`
+Apply database migrations:
+`dotnet ef database update`
+Run the API:
+`dotnet run`
