@@ -44,15 +44,34 @@ The backend relies on environment variables for database connections and JWT sig
    DB_PORT=3306
    JWT_KEY=your_super_secret_jwt_key_here
    JWT_ISSUER=http://localhost:5079
-   JWT_AUDIENCE=http://localhost:5173
+   JWT_AUDIENCE=http://localhost:5173 
 
 ## 2. Backend Setup (.NET)
 
-Open a terminal and navigate to the backend directory:
+- Open a terminal and navigate to the backend directory:
 `cd backend`
-Restore dependencies:
+- Restore dependencies:
 `dotnet restore`
-Apply database migrations:
+- Apply database migrations:
 `dotnet ef database update`
-Run the API:
+- Run the API:
 `dotnet run`
+
+The backend API will start, typically accessible at http://localhost:5079. You can view the Swagger documentation at http://localhost:5079/swagger.
+
+## 3. Frontend Setup (React / Vite)
+
+- Open a new terminal window and navigate to the frontend directory:
+`cd frontend`
+- Install dependencies:
+`npm install`
+- Run the development server:
+`npm run dev`
+
+The React application will be available at http://localhost:5173.
+
+## Testing
+The frontend includes setup for both unit and end-to-end testing. Run these from inside the /frontend directory.
+
+- Unit Tests (Vitest)
+`npm run test:unit`
