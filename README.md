@@ -1,67 +1,47 @@
 # ctnet-evaluation
 
-This template should help get you started developing with Vue 3 in Vite.
+This is a full-stack web application featuring a **React (Vite)** frontend and a **.NET (C#)** backend, utilizing a MySQL database and JWT-based authentication.
+
+## Project Structure
+
+The repository is organized into a monorepo structure:
+- `/frontend` - The React Vite application, UI components (Ant Design), and E2E tests (Playwright).
+- `/backend` - The .NET Web API, Entity Framework Core models, and authentication logic.
+
+---
 
 ## Recommended IDE Setup
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **VS Code** or a **JetBrains IDE**, enhanced with **GitHub Copilot** for faster development.
+- **Extensions:**
+  - *Frontend:* ESLint, Prettier
+  - *Backend:* C# Dev Kit (for VS Code)
+- **Browser Tools:** [React Developer Tools](https://chromewebstore.google.com/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi) for component inspection.
 
-## Recommended Browser Setup
+---
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## Prerequisites
 
-## Type Support for `.vue` Imports in TS
+Before you begin, ensure you have the following installed:
+- [Node.js](https://nodejs.org/) (v20+ recommended)
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download)
+- [MySQL Server](https://dev.mysql.com/downloads/mysql/)
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+---
 
-## Customize configuration
+## 1. Environment Setup
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+The backend relies on environment variables for database connections and JWT signing. 
 
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
-
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-npm run build
-
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
-```
+1. At the **root** of the project (outside the frontend and backend folders), duplicate the `.sample.env` file.
+2. Rename the duplicated file to `.env`.
+3. Update the credentials inside `.env` to match your local MySQL setup and preferred JWT secrets:
+   ```env
+   DB_SERVER=localhost
+   DB_NAME=database
+   DB_UID=root
+   DB_PWD=your_database_password
+   DB_PORT=3306
+   JWT_KEY=your_super_secret_jwt_key_here
+   JWT_ISSUER=http://localhost:5079
+   JWT_AUDIENCE=http://localhost:5173
