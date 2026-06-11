@@ -11,7 +11,8 @@ const { Title, Text } = Typography;
 interface User {
   id: string;
   email: string;
-  userName: string;
+  userName?: string;
+  username?: string;
 }
 
 export default function Dashboard() {
@@ -53,9 +54,8 @@ export default function Dashboard() {
     },
     { 
       title: 'Username', 
-      dataIndex: 'userName', 
-      key: 'userName',
-      render: (text: string) => <Text strong>{text}</Text>
+      key: 'username',
+      render: (_: any, record: User) => <Text strong>{record.username || record.userName}</Text>
     },
     { 
       title: 'Email', 
@@ -85,7 +85,7 @@ export default function Dashboard() {
       }}>
         <Title level={4} style={{ margin: 0 }}>Overview</Title>
         <Space size="large">
-          <Text>Welcome back, <strong>{currentUser.userName}</strong></Text>
+          <Text>Welcome back, <strong>{currentUser.username || currentUser.userName}</strong></Text>
           <Button type="text" icon={<LogoutOutlined />} onClick={handleLogout} danger>
             Log out
           </Button>
@@ -98,6 +98,7 @@ export default function Dashboard() {
           <Card title="Profile Details" bordered={false} style={{ borderRadius: 8 }}>
             <Descriptions column={1}>
               <Descriptions.Item label="Email">{currentUser.email}</Descriptions.Item>
+              <Descriptions.Item label="Username">{currentUser.username || currentUser.userName}</Descriptions.Item>
               <Descriptions.Item label="Account ID">
                 <Text copyable>{currentUser.id}</Text>
               </Descriptions.Item>

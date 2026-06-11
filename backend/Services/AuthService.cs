@@ -52,7 +52,7 @@ namespace backend.Services
         {
             try
             {
-                var (user, token) = await _authManager.SignInUserEmailAsync(dto.Email, dto.Password);
+                var (user, token) = await _authManager.SignInUserAsync(dto.Identifier, dto.Password);
 
                 return new NewAppUserResponseDto
                 {

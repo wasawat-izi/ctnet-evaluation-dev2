@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Form, Input, Button, Card, Typography, Alert } from 'antd'
-import { MailOutlined, LockOutlined } from '@ant-design/icons'
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import api from '../api/axios'
 
 const { Title, Text } = Typography
@@ -60,14 +60,13 @@ export default function Login() {
 
         <Form name="login" onFinish={onFinish} layout="vertical" requiredMark={false} size="large">
           <Form.Item
-            name="email"
-            label="Email"
+            name="identifier"
+            label="Email or Username"
             rules={[
-              { required: true, message: 'Email is required' },
-              { type: 'email', message: 'Invalid email format' },
+              { required: true, message: 'Email or Username is required' },
             ]}
           >
-            <Input prefix={<MailOutlined />} placeholder="Enter your email" />
+            <Input prefix={<UserOutlined />} placeholder="Enter your email or username" />
           </Form.Item>
 
           <Form.Item
