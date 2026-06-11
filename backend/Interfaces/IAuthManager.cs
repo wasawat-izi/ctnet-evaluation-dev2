@@ -9,6 +9,7 @@ namespace backend.Interfaces
     public interface IAuthManager
     {
         Task<(AppUser, string)> RegisterNewUserAsync(AppUser appUser, string password);
-        Task<(AppUser, string)> SignInUserAsync(string identifier, string password);
+        Task<(AppUser, string)> SignInUserByEmailAsync(string email, string password);
+        Task<(AppUser, string)> SignInUserByUsernameAsync(string username, string password);
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
@@ -19,6 +20,8 @@ namespace backend.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<AppUser>().HasIndex(u => u.Email).IsUnique();
+            builder.Entity<AppUser>().HasIndex(u => u.UserName).IsUnique();
+            builder.Entity<AppUser>().HasIndex(u => u.NormalizedUserName).IsUnique(false);
             base.OnModelCreating(builder);
             List<IdentityRole> roles = new List<IdentityRole>
             {

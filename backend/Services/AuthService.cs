@@ -48,7 +48,7 @@ namespace backend.Services
             }
         }
 
-        public async Task<NewAppUserResponseDto> LoginUserAsync(LoginAccountDto dto)
+        public async Task<NewAppUserResponseDto> LoginUserByEmailAsync(LoginAccountByEmailDto dto)
         {
             try
             {
