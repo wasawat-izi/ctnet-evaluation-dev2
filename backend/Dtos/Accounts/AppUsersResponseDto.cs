@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using backend.Dtos.Accounts;
 
-namespace backend.Dtos.Auth
+namespace backend.Dtos.Accounts
 {
-    public class AuthResultDto
+    public class AppUsersResponseDto
     {
         public bool Success { get; set; }
         public IEnumerable<string>? Errors { get; set; }
-        public NewAccountDto? Data { get; set; }
+        public List<GetAccountDto>? Data { get; set; }
     }
 }
