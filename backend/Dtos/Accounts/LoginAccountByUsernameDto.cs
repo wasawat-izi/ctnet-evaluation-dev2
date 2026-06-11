@@ -6,11 +6,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace backend.Dtos.Accounts
 {
-    public class LoginAccountByEmailDto
+    public class LoginAccountByUsernameDto
     {
         [Required]
-        [EmailAddress]
-        public string? Email { get; set; }
+        public string? Username { get; set; }
 
         [Required]
         public string? Password { get; set; }

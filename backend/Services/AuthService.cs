@@ -48,11 +48,34 @@ namespace backend.Services
             }
         }
 
-        public async Task<NewAppUserResponseDto> LoginUserAsync(LoginAccountDto dto)
+        public async Task<NewAppUserResponseDto> LoginUserByEmailAsync(LoginAccountByEmailDto dto)
         {
             try
             {
-                var (user, token) = await _authManager.SignInUserEmailAsync(dto.Email, dto.Password);
+                var (user, token) = await _authManager.SignInUserByEmailAsync(dto.Email, dto.Password);
+
+                return new NewAppUserResponseDto
+                {
+                    Success = true,
+                    Data = new NewAccountDto
+                    {
+                        Username = user.UserName,
+                        Email = user.Email,
+                        Token = token
+                    }
+                };
+            }
+            catch (Exception e)
+            {
+                return new NewAppUserResponseDto { Success = false, Errors = new[] { e.Message } };
+            }
+        }
+
+        public async Task<NewAppUserResponseDto> LoginUserByUsernameAsync(LoginAccountByUsernameDto dto)
+        {
+            try
+            {
+                var (user, token) = await _authManager.SignInUserByUsernameAsync(dto.Username, dto.Password);
 
                 return new NewAppUserResponseDto
                 {

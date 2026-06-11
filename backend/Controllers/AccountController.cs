@@ -42,13 +42,27 @@ namespace backend.Controllers
             return Ok(result.Data);
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginAccountDto loginAccountDto)
+        [HttpPost("login/email")]
+        public async Task<IActionResult> LoginByEmail([FromBody] LoginAccountByEmailDto loginAccountByEmailDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authService.LoginUserAsync(loginAccountDto);
+            var result = await _authService.LoginUserByEmailAsync(loginAccountByEmailDto);
+
+            if (!result.Success)
+                return StatusCode(500, result.Errors);
+
+            return Ok(result.Data);
+        }
+
+        [HttpPost("login/username")]
+        public async Task<IActionResult> LoginByUsername([FromBody] LoginAccountByUsernameDto loginAccountByUsernameDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _authService.LoginUserByUsernameAsync(loginAccountByUsernameDto);
 
             if (!result.Success)
                 return StatusCode(500, result.Errors);

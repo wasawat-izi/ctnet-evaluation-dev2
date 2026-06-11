@@ -38,7 +38,7 @@ namespace backend.Managers
             return (appUser, token);
         }
 
-        public async Task<(AppUser, string)> SignInUserEmailAsync(string email, string password)
+        public async Task<(AppUser, string)> SignInUserByEmailAsync(string email, string password)
         {
             var user = await _repository.GetUserByEmailAsync(email);
 
@@ -57,5 +57,23 @@ namespace backend.Managers
             return (user, token);
         }
 
+        public async Task<(AppUser, string)> SignInUserByUsernameAsync(string username, string password)
+        {
+            var user = await _repository.GetUserByUsernameAsync(username);
+
+            if(user == null)
+                throw new Exception("Username doesn't exist");
+
+            var result = await _repository.CheckSignInPassword(user, password);
+
+            if(result.IsLockedOut)
+                throw new Exception("Account is locked due to multiple failed login attempts. Please try again in 5 minutes.");
+
+            if(!result.Succeeded)
+                throw new Exception("Email not found and/or incorrect password");
+
+            var token = _tokenService.CreateToken(user);
+            return (user, token);
+        }
     }
 }

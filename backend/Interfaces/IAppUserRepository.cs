@@ -10,6 +10,7 @@ namespace backend.Interfaces
     public interface IAppUserRepository
     {
         Task<AppUser?> GetUserByEmailAsync(string email);
+        Task<AppUser?> GetUserByUsernameAsync(string username);
         Task<IdentityResult> CreateUserAsync(AppUser user, string password);
         Task<IdentityResult> AddUserRoleAsync(AppUser user, string role);
         Task<List<AppUser>?> GetAllUsersAsync();

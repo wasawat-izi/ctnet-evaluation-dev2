@@ -57,10 +57,12 @@ builder.Services.AddSwaggerGen(option =>
 builder.Services.AddControllers();
 builder.Configuration.AddEnvironmentVariables();
 
-builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAuthManager, AuthManager>();
+
+builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 builder.Services.AddScoped<IAppUserService, AppUserService>();
 builder.Services.AddScoped<IAppUserManager, AppUserManager>();
 
