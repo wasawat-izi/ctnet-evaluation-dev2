@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Dtos.Accounts;
-using backend.Dtos.Auth;
 using backend.Interfaces;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
@@ -11,18 +10,14 @@ namespace backend.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly SignInManager<AppUser> _signInManager;
-        private readonly ITokenService _tokenService;
+        private readonly IAuthManager _authManager;
 
-        public AuthService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenService tokenService)
+        public AuthService(IAuthManager authManager)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _tokenService = tokenService;
+            _authManager = authManager;
         }
 
-        public async Task<AuthResultDto> RegisterUserAsync(RegisterAccountDto dto)
+        public async Task<NewAppUserResponseDto> RegisterUserAsync(RegisterAccountDto dto)
         {
             try
             {
@@ -34,86 +29,45 @@ namespace backend.Services
                     Email = dto.Email,
                 };
 
-                var createdUser = await _userManager.CreateAsync(appUser, dto.Password);
+                var (createdUser, token) = await _authManager.RegisterNewUserAsync(appUser, dto.Password);
 
-                if (!createdUser.Succeeded)
-                {
-                    return new AuthResultDto 
-                    { 
-                        Success = false, 
-                        Errors = createdUser.Errors.Select(e => e.Description) 
-                    };
-                }
-
-                var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
-                
-                if (!roleResult.Succeeded)
-                {
-                    return new AuthResultDto 
-                    { 
-                        Success = false, 
-                        Errors = roleResult.Errors.Select(e => e.Description) 
-                    };
-                }
-
-                return new AuthResultDto
+                return new NewAppUserResponseDto
                 {
                     Success = true,
                     Data = new NewAccountDto
                     {
-                        Username = appUser.UserName,
-                        Email = appUser.Email,
-                        Token = _tokenService.CreateToken(appUser)
+                        Username = createdUser.UserName,
+                        Email = createdUser.Email,
+                        Token = token
                     }
                 };
             }
             catch (Exception e)
             {
-                return new AuthResultDto { Success = false, Errors = new[] { e.Message } };
+                return new NewAppUserResponseDto { Success = false, Errors = new[] { e.Message } };
             }
         }
 
-        public async Task<AuthResultDto> LoginUserAsync(LoginAccountDto dto)
+        public async Task<NewAppUserResponseDto> LoginUserAsync(LoginAccountDto dto)
         {
             try
             {
-                var user = await _userManager.FindByEmailAsync(dto.Email);
+                var (user, token) = await _authManager.SignInUserEmailAsync(dto.Email, dto.Password);
 
-                if (user == null)
-                {
-                    return new AuthResultDto { Success = false, Errors = new[] { "Email not found and/or incorrect password" } };
-                }
-
-                var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: true);
-
-                if (result.IsLockedOut)
-                {
-                    return new AuthResultDto 
-                    { 
-                        Success = false, 
-                        Errors = new[] { "Account is locked due to multiple failed login attempts. Please try again in 5 minutes." } 
-                    };
-                }
-
-                if (!result.Succeeded)
-                {
-                    return new AuthResultDto { Success = false, Errors = new[] { "Email not found and/or incorrect password" } };
-                }
-
-                return new AuthResultDto
+                return new NewAppUserResponseDto
                 {
                     Success = true,
                     Data = new NewAccountDto
                     {
                         Username = user.UserName,
                         Email = user.Email,
-                        Token = _tokenService.CreateToken(user)
+                        Token = token
                     }
                 };
             }
             catch (Exception e)
             {
-                return new AuthResultDto { Success = false, Errors = new[] { e.Message } };
+                return new NewAppUserResponseDto { Success = false, Errors = new[] { e.Message } };
             }
         }
     }

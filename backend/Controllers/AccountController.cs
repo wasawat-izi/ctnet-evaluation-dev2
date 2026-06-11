@@ -18,11 +18,13 @@ namespace backend.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IAppUserService _appUserService;
         private readonly UserManager<AppUser> _userManager;
 
-        public AccountController(IAuthService authService, UserManager<AppUser> userManager)
+        public AccountController(IAuthService authService, IAppUserService appUserService, UserManager<AppUser> userManager)
         {
             _authService = authService;
+            _appUserService = appUserService;
             _userManager = userManager; 
         }
 
@@ -31,10 +33,6 @@ namespace backend.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            var existingUser = await _userManager.FindByEmailAsync(registerAccountDto.Email);
-            if(existingUser != null)
-                return BadRequest(new[] {"Email already existed!"});
 
             var result = await _authService.RegisterUserAsync(registerAccountDto);
 
@@ -53,7 +51,7 @@ namespace backend.Controllers
             var result = await _authService.LoginUserAsync(loginAccountDto);
 
             if (!result.Success)
-                return Unauthorized(result.Errors.FirstOrDefault());
+                return StatusCode(500, result.Errors);
 
             return Ok(result.Data);
         }
@@ -62,46 +60,25 @@ namespace backend.Controllers
         [Authorize] 
         public async Task<IActionResult> GetCurrentUser()
         {
-            try
-            {
-                var email = User.FindFirstValue(ClaimTypes.Email);
-                if (email == null) return Unauthorized();
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            if (email == null) return Unauthorized();
 
-                var user = await _userManager.FindByEmailAsync(email);
-                if (user == null) return NotFound("User not found");
+            var result = await _appUserService.GetUserByEmail(email);
+            if (!result.Success)
+                return StatusCode(500, result.Errors);
 
-                return Ok(new 
-                {
-                    Username = user.UserName,
-                    Email = user.Email
-                });
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
+            return Ok(result.Data);
         }
 
         [HttpGet]
         [Authorize] 
         public async Task<IActionResult> GetAllUsers()
         {
-            try
-            {
-                var users = await _userManager.Users.ToListAsync();
-                var userList = users.Select(u => new 
-                {
-                    Id = u.Id,
-                    UserName = u.UserName,
-                    Email = u.Email
-                });
+            var result = await _appUserService.GetAllUsersAsync();
+            if (!result.Success)
+                return StatusCode(500, result.Errors);
 
-                return Ok(userList);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
+            return Ok(result.Data);
         }
     }
 }

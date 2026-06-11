@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using backend.Services;
 using System.Threading.RateLimiting;
 using Org.BouncyCastle.Asn1.Cms;
+using backend.Managers;
 
 var envPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "..", ".env"));
 
@@ -58,6 +59,10 @@ builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthManager, AuthManager>();
+builder.Services.AddScoped<IAppUserService, AppUserService>();
+builder.Services.AddScoped<IAppUserManager, AppUserManager>();
 
 var server = Environment.GetEnvironmentVariable("DB_SERVER") ?? "localhost";
 var database = Environment.GetEnvironmentVariable("DB_NAME") ?? "database";
@@ -123,8 +128,6 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
-
-builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
