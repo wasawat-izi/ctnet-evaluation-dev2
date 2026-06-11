@@ -142,7 +142,7 @@ export default function RegisterPage() {
                 alignContent: 'bottom',
               }}
             >
-              Already have an account? <a href="/login">Register</a>
+              Already have an account? <a href="/login">Login</a>
             </Form.Item>
           </Form>
         </ConfigProvider>
